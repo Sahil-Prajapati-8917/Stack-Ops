@@ -22,7 +22,7 @@ export default function Login() {
     const onSubmit = async (data: any) => {
         setLoading(true);
         try {
-            const res = await axios.post('/auth/login', data);
+            await axios.post('/auth/login', data);
             toast.success('Logged in successfully');
             // Store user info if needed, or rely on cookie
             navigate('/dashboard');
