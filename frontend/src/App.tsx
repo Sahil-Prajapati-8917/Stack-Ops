@@ -3,11 +3,14 @@ import { queryClient } from './lib/query-client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import DashboardLayout from './layouts/DashboardLayout';
-import Dashboard from './pages/dashboard/Dashboard';
-import Login from './pages/auth/Login';
+import Dashboard from '@/pages/dashboard/Dashboard';
+import Login from '@/pages/auth/Login';
 import Signup from './pages/auth/Signup';
-import Projects from './pages/projects/Projects';
-import ProjectDetail from './pages/projects/ProjectDetail';
+import Projects from '@/pages/projects/Projects';
+import ProjectDetail from '@/pages/projects/ProjectDetail';
+import Team from '@/pages/dashboard/Team';
+import Billing from '@/pages/dashboard/Billing';
+import Settings from '@/pages/dashboard/Settings';
 
 function App() {
   return (
@@ -22,6 +25,9 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
             <Route path="projects/:id" element={<ProjectDetail />} />
+            <Route path="team" element={<Team />} />
+            <Route path="billing" element={<Billing />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </BrowserRouter>

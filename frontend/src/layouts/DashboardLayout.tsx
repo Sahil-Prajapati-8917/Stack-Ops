@@ -1,11 +1,12 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard,
-    Layers,
+    FolderGit2,
+    Menu,
     Users,
     CreditCard,
     Settings,
-    Menu,
+    Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +20,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import axios from '@/lib/axios';
-import { useNavigate } from 'react-router-dom';
 
 export default function DashboardLayout() {
     const location = useLocation();
@@ -35,7 +35,7 @@ export default function DashboardLayout() {
     };
 
     const NavItem = ({ to, icon: Icon, label }: { to: string; icon: any; label: string }) => {
-        const isActive = location.pathname === to;
+        const isActive = location.pathname.startsWith(to) && to !== '/' || location.pathname === to;
         return (
             <Link
                 to={to}
@@ -61,7 +61,7 @@ export default function DashboardLayout() {
                     <div className="flex-1">
                         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                             <NavItem to="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-                            <NavItem to="/projects" icon={Layers} label="Projects" />
+                            <NavItem to="/projects" icon={FolderGit2} label="Projects" />
                             <NavItem to="/team" icon={Users} label="Team" />
                             <NavItem to="/billing" icon={CreditCard} label="Billing" />
                             <NavItem to="/settings" icon={Settings} label="Settings" />
@@ -96,8 +96,20 @@ export default function DashboardLayout() {
                                     Dashboard
                                 </Link>
                                 <Link to="/projects" className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
-                                    <Layers className="h-5 w-5" />
+                                    <FolderGit2 className="h-5 w-5" />
                                     Projects
+                                </Link>
+                                <Link to="/team" className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
+                                    <Users className="h-5 w-5" />
+                                    Team
+                                </Link>
+                                <Link to="/billing" className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
+                                    <CreditCard className="h-5 w-5" />
+                                    Billing
+                                </Link>
+                                <Link to="/settings" className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground">
+                                    <Settings className="h-5 w-5" />
+                                    Settings
                                 </Link>
                             </nav>
                         </SheetContent>
@@ -118,7 +130,7 @@ export default function DashboardLayout() {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>Settings</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
                             <DropdownMenuItem>Support</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
