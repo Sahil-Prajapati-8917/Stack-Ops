@@ -1,11 +1,11 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/query-client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
-
-// Placeholder for now
-const Dashboard = () => <div>Dashboard</div>;
-const Login = () => <div>Login</div>;
+import { Toaster } from '@/components/ui/sonner';
+import DashboardLayout from './layouts/DashboardLayout';
+import Dashboard from './pages/dashboard/Dashboard';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
 
 function App() {
   return (
@@ -13,11 +13,16 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/signup" element={<Signup />} />
+
+          <Route path="/" element={<DashboardLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            {/* Add more routes here */}
+          </Route>
         </Routes>
       </BrowserRouter>
-      <Toaster position="top-right" />
+      <Toaster />
     </QueryClientProvider>
   );
 }
