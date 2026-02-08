@@ -50,6 +50,8 @@ export const streamDeploymentLogs = async (req: Request, res: Response) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
+    const { id } = req.params;
+
     const listener = (data: any) => {
         res.write(`data: ${JSON.stringify(data)}\n\n`);
     };

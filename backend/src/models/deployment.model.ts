@@ -44,7 +44,7 @@ const deploymentSchema = new mongoose.Schema({
 });
 
 // Middleware to automatically add an event when status changes
-deploymentSchema.pre('save', function (next) {
+deploymentSchema.pre('save', function (this: any, next: any) {
     if (this.isModified('status')) {
         this.events.push({
             state: this.status,
