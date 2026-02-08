@@ -9,7 +9,11 @@ import {
     Square,
     Terminal,
     RefreshCw,
-    Settings
+    Settings,
+    Activity,
+    CheckCircle,
+    XCircle,
+    Clock
 } from 'lucide-react';
 import axios from '@/lib/axios';
 import { Button } from '@/components/ui/button';
@@ -40,6 +44,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 
 interface Service {
     _id: string;
@@ -47,6 +59,13 @@ interface Service {
     type: string;
     status: string;
     replicas: number;
+}
+
+interface Deployment {
+    _id: string;
+    status: string;
+    createdAt: string;
+    service: Service;
 }
 
 export default function ProjectDetail() {
@@ -73,6 +92,18 @@ export default function ProjectDetail() {
             return res.data as Service[];
         },
         enabled: !!id,
+        refetchInterval: 5000
+    });
+
+    // Fetch Deployments
+    const { data: deployments, isLoading: loadingDeployments } = useQuery({
+        queryKey: ['deployments', id],
+        queryFn: async () => {
+            const res = await axios.get(`/deployments/project/${id}`);
+            return res.data as Deployment[];
+        },
+        enabled: !!id,
+        refetchInterval: 3000
     });
 
     // Create Service Mutation
@@ -98,6 +129,7 @@ export default function ProjectDetail() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['services', id] });
+            queryClient.invalidateQueries({ queryKey: ['deployments', id] });
             toast.success('Deployment triggered');
         },
         onError: (error: any) => {
@@ -107,6 +139,17 @@ export default function ProjectDetail() {
 
     const onSubmitService = (data: any) => {
         createServiceMutation.mutate(data);
+    };
+
+    const getStatusIcon = (status: string) => {
+        switch (status) {
+            case 'success': return <CheckCircle className="h-4 w-4 text-green-500" />;
+            case 'failed': return <XCircle className="h-4 w-4 text-red-500" />;
+            case 'running': return <Activity className="h-4 w-4 text-green-500" />;
+            case 'deploying': return <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />;
+            case 'building': return <Clock className="h-4 w-4 animate-pulse text-yellow-500" />;
+            default: return <Clock className="h-4 w-4 text-muted-foreground" />;
+        }
     };
 
     if (loadingProject) return <div className="p-8">Loading project...</div>;
@@ -215,16 +258,16 @@ export default function ProjectDetail() {
                                                 {service.type === 'web' ? <RefreshCw className="h-4 w-4" /> : <Terminal className="h-4 w-4" />}
                                                 {service.name}
                                             </CardTitle>
-                                            <Badge variant={service.status === 'running' ? 'default' : service.status === 'failed' ? 'destructive' : 'secondary'}>
-                                                {service.status}
-                                            </Badge>
+                                            <div className="flex items-center gap-2">
+                                                {getStatusIcon(service.status)}
+                                                <span className="text-sm capitalize">{service.status}</span>
+                                            </div>
                                         </div>
                                         <CardDescription className="text-xs">
                                             {service.type} • {service.replicas} replica(s)
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="pb-2">
-                                        {/* Monitoring metrics could go here */}
                                         <div className="text-xs text-muted-foreground">
                                             CPU: 0% / RAM: 0MB
                                         </div>
@@ -249,8 +292,51 @@ export default function ProjectDetail() {
                 </TabsContent>
 
                 <TabsContent value="deployments">
-                    <div className="text-muted-foreground text-center py-8">
-                        Deployment history will appear here.
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Recent Deployments</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Service</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Time</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {loadingDeployments ? (
+                                        <TableRow><TableCell colSpan={4}>Loading...</TableCell></TableRow>
+                                    ) : deployments?.length === 0 ? (
+                                        <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No deployments found.</TableCell></TableRow>
+                                    ) : (
+                                        deployments?.map((d) => (
+                                            <TableRow key={d._id}>
+                                                <TableCell className="font-medium">{(d.service as any)?.name || 'Unknown'}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2">
+                                                        {getStatusIcon(d.status)}
+                                                        <span className="capitalize">{d.status}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>{new Date(d.createdAt).toLocaleString()}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <Button variant="ghost" size="sm">Logs</Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="settings">
+                    <div className="text-center py-8 text-muted-foreground">
+                        Project settings (Environment variables, etc.) coming soon.
                     </div>
                 </TabsContent>
             </Tabs>
