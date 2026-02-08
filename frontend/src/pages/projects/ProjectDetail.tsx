@@ -6,7 +6,6 @@ import {
     ArrowLeft,
     Plus,
     Play,
-    Square,
     Terminal,
     RefreshCw,
     Settings,
