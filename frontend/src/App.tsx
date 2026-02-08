@@ -6,6 +6,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Dashboard from './pages/dashboard/Dashboard';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
+import Projects from './pages/projects/Projects';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Route path="/" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
-            {/* Add more routes here */}
+            <Route path="projects" element={<Projects />} />
           </Route>
         </Routes>
       </BrowserRouter>
