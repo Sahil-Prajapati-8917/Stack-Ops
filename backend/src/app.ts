@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import serviceRoutes from './routes/service.routes.js';
+import deploymentRoutes from './routes/deployment.routes.js';
 
 const app = express();
 
@@ -22,5 +23,6 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/projects', projectRoutes);
 app.use('/services', serviceRoutes);
+app.use('/deployments', deploymentRoutes);
 
 export default app;

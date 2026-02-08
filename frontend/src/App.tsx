@@ -7,6 +7,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 import Projects from './pages/projects/Projects';
+import ProjectDetail from './pages/projects/ProjectDetail';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="projects" element={<Projects />} />
+            <Route path="projects/:id" element={<ProjectDetail />} />
           </Route>
         </Routes>
       </BrowserRouter>
