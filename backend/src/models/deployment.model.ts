@@ -13,9 +13,19 @@ const deploymentSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'building', 'deploying', 'success', 'failed'],
-        default: 'pending'
+        enum: ['PENDING', 'BUILDING', 'DEPLOYING', 'RUNNING', 'FAILED', 'ROLLED_BACK'],
+        default: 'PENDING'
     },
+    events: [{
+        state: {
+            type: String,
+            enum: ['PENDING', 'BUILDING', 'DEPLOYING', 'RUNNING', 'FAILED', 'ROLLED_BACK']
+        },
+        timestamp: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     logs: [{
         timestamp: {
             type: Date,
@@ -31,6 +41,17 @@ const deploymentSchema = new mongoose.Schema({
     }
 }, {
     timestamps: true
+});
+
+// Middleware to automatically add an event when status changes
+deploymentSchema.pre('save', function (next) {
+    if (this.isModified('status')) {
+        this.events.push({
+            state: this.status,
+            timestamp: new Date()
+        });
+    }
+    next();
 });
 
 const Deployment = mongoose.model('Deployment', deploymentSchema);

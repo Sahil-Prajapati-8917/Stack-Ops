@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import Deployment from '../models/deployment.model.js';
 import Service from '../models/service.model.js';
 
@@ -5,7 +6,7 @@ export interface IServiceManager {
     deployService(serviceId: string): Promise<boolean>;
 }
 
-class ServiceManager implements IServiceManager {
+class ServiceManager extends EventEmitter implements IServiceManager {
     async deployService(serviceId: string): Promise<boolean> {
         console.log(`[ServiceManager] Deploying service: ${serviceId}`);
 
@@ -18,51 +19,74 @@ class ServiceManager implements IServiceManager {
         const deployment = await Deployment.create({
             project: service.project,
             service: serviceId,
-            status: 'pending',
-            logs: [{ message: 'Deployment request received' }]
+            status: 'PENDING',
+            logs: [{ message: 'Deployment initialized' }]
         });
 
+        // Notify listeners
+        this.emitLog(deployment._id.toString(), 'Deployment initialized...');
+        this.emitLog(deployment._id.toString(), 'Waiting for build slot...');
+
         // Simulate async deployment process
-        this.simulateBuild(deployment._id.toString(), serviceId);
+        this.runDeploymentSequence(deployment._id.toString(), serviceId);
 
         return true;
     }
 
+    // Emit log event
+    private emitLog(deploymentId: string, message: string) {
+        this.emit(`log:${deploymentId}`, {
+            timestamp: new Date(),
+            message
+        });
+    }
+
     // Simulation of build/deploy steps
-    private async simulateBuild(deploymentId: string, serviceId: string) {
+    private async runDeploymentSequence(deploymentId: string, serviceId: string) {
         try {
-            const deployment = await Deployment.findById(deploymentId);
-            if (!deployment) return;
+            const updateStatus = async (status: string) => {
+                await Deployment.findByIdAndUpdate(deploymentId, { status });
+                this.emitLog(deploymentId, `Status changed to ${status}`);
+            };
 
-            // Building
+            const addLog = async (message: string) => {
+                this.emitLog(deploymentId, message);
+                await Deployment.findByIdAndUpdate(deploymentId, {
+                    $push: { logs: { message, timestamp: new Date() } }
+                });
+            };
+
+            // 1. BUILDING
             setTimeout(async () => {
-                deployment.status = 'building';
-                deployment.logs.push({ message: 'Starting build process...', timestamp: new Date() });
-                deployment.logs.push({ message: 'Pulling latest code...', timestamp: new Date() });
-                await deployment.save();
-            }, 1000);
+                await updateStatus('BUILDING');
+                await addLog('Starting build process...');
+                await addLog('Cloning repository...');
+                await addLog('Installing dependencies (npm install)...');
+            }, 2000);
 
-            // Deploying
+            // 2. DEPLOYING
             setTimeout(async () => {
-                deployment.status = 'deploying';
-                deployment.logs.push({ message: 'Build successful. Deploying to cluster...', timestamp: new Date() });
-                await deployment.save();
-            }, 3000);
+                await addLog('Build successful. Creating Docker image...');
+                await updateStatus('DEPLOYING');
+                await addLog('Pushing image to registry...');
+                await addLog('Provisioning container instance...');
+            }, 6000);
 
-            // Success
+            // 3. RUNNING
             setTimeout(async () => {
-                deployment.status = 'success';
-                deployment.logs.push({ message: 'Service is healthy and running.', timestamp: new Date() });
-                await deployment.save();
-
-                // Update service status
+                await addLog('Health check passed. Service is responding.');
+                await updateStatus('RUNNING');
                 await Service.findByIdAndUpdate(serviceId, { status: 'running' });
-            }, 5000);
+                await addLog('Deployment completed successfully.');
+            }, 10000);
 
         } catch (error) {
             console.error('Deployment simulation failed', error);
+            await Deployment.findByIdAndUpdate(deploymentId, { status: 'FAILED' });
+            this.emitLog(deploymentId, 'Deployment Failed: Internal Server Error');
         }
     }
 }
 
+// Export a singleton instance
 export default new ServiceManager();

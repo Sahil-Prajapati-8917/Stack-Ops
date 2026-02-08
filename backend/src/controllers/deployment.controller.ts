@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Deployment from '../models/deployment.model.js';
+import serviceManager from '../services/serviceManager.js';
 
 interface AuthRequest extends Request {
     user?: any;
@@ -41,4 +42,28 @@ export const getDeploymentById = async (req: AuthRequest, res: Response) => {
     } catch (error) {
         res.status(500).json({ message: (error as Error).message });
     }
+};
+
+export const streamDeploymentLogs = async (req: Request, res: Response) => {
+    // SSE Setup
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const listener = (data: any) => {
+        res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    // Subscribe to service manager events
+    // Assuming serviceManager emits 'log:deploymentId'
+    serviceManager.on(`log:${id}`, listener);
+
+    // Send initial connection message
+    res.write(`data: ${JSON.stringify({ message: 'Connected to log stream', timestamp: new Date() })}\n\n`);
+
+    // Cleanup on close
+    req.on('close', () => {
+        serviceManager.off(`log:${id}`, listener);
+        res.end();
+    });
 };
