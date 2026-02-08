@@ -5,7 +5,6 @@ import {
     Users,
     CreditCard,
     Settings,
-    LogOut,
     Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
