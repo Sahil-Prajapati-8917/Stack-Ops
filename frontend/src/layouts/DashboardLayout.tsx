@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { ModeToggle } from '@/components/mode-toggle';
 import axios from '@/lib/axios';
 
 export default function DashboardLayout() {
@@ -117,6 +118,7 @@ export default function DashboardLayout() {
                     <div className="w-full flex-1">
                         {/* Search or title could go here */}
                     </div>
+                    <ModeToggle />
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="secondary" size="icon" className="rounded-full">

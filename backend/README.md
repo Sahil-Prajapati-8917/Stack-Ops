@@ -15,10 +15,9 @@ FRONTEND_URL=http://localhost:5173
 
 ## 📜 Scripts
 
-*   `npm run dev`: Start the development server with hot-reload (nodemon).
+*   `npm run dev`: Start the development server with `tsx watch`.
 *   `npm run build`: Compile TypeScript to JavaScript.
 *   `npm start`: Run the compiled production server.
-*   `npm run lint`: Run ESLint.
 
 ## 🔌 API Endpoints
 

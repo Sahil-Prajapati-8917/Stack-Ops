@@ -18,6 +18,7 @@ StackOps is a comprehensive platform designed to simplify the deployment and man
 *   **Styling**: Tailwind CSS, Shadcn UI
 *   **State Management**: TanStack Query (React Query)
 *   **Routing**: React Router DOM
+*   **Notifications**: Sonner
 
 ### Backend
 *   **Runtime**: Node.js
@@ -26,6 +27,7 @@ StackOps is a comprehensive platform designed to simplify the deployment and man
 *   **Database**: MongoDB (Mongoose)
 *   **Caching/Queue**: Redis (Stubbed/Planned)
 *   **Authentication**: JWT, bcrypt
+*   **Validation**: Zod
 
 ## 📂 Project Structure
 
