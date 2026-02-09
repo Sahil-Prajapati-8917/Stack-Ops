@@ -42,6 +42,12 @@ FRONTEND_URL=http://localhost:5173
 *   `GET /deployments/service/:serviceId`: Get deployment history for a service.
 *   `GET /deployments/:id`: Get details of a specific deployment.
 
+## 🚀 Features Implemented
+
+*   **Real Docker Deployments**: Services are deployed as actual Docker containers (requires Docker on host).
+*   **Environment Variables**: Securely manage environment variables for each service.
+*   **Live Logs**: Real-time log streaming from the deployment process.
+
 ## 🗄 Database Models
 
 *   **User**: Stores user credentials and profile info.

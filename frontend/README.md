@@ -36,5 +36,9 @@ Styling is handled via Tailwind CSS.
 
 ## 🧩 State Management
 
-*   **TanStack Query**: Used for all server-state (fetching projects, services, deployments).
 *   **Context**: Can be used for global client-state if needed.
+
+## 🌟 New Features
+
+*   **Service Configuration**: specialized settings tab for managing environment variables.
+*   **Live Deployment Tracking**: Watch your Docker containers spin up in real-time.
