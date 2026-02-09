@@ -32,6 +32,7 @@ VITE_API_URL=http://localhost:5001
 Styling is handled via Tailwind CSS. 
 *   Global styles: `src/index.css`
 *   Theme configuration: `tailwind.config.js` (via Vite plugin).
+*   **Theme Support**: Built-in light/dark mode with `next-themes` and a reusable `ModeToggle` component.
 
 ## 🧩 State Management
 

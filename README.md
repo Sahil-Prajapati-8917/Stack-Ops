@@ -9,6 +9,7 @@ StackOps is a comprehensive platform designed to simplify the deployment and man
 *   **Deployment Tracking**: Real-time status updates and history of deployments.
 *   **Secure Authentication**: JWT-based authentication with secure cookie handling.
 *   **Modern UI**: Built with React, Tailwind CSS, and Shadcn UI for a premium user experience.
+*   **Dark Mode Support**: Seamless theme switching with system preference detection.
 
 ## 🛠 Tech Stack
 
