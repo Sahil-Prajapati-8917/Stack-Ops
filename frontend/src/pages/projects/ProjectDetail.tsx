@@ -11,7 +11,8 @@ import {
     CheckCircle,
     XCircle,
     Clock,
-    Loader2
+    Loader2,
+    Trash2
 } from 'lucide-react';
 import axios from '@/lib/axios';
 import { Button } from '@/components/ui/button';
@@ -442,11 +443,104 @@ export default function ProjectDetail() {
                 </TabsContent>
 
                 <TabsContent value="settings">
-                    <div className="text-center py-8 text-muted-foreground">
-                        Project settings (Environment variables, etc.) coming soon.
+                    <div className="grid gap-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Service Configuration</CardTitle>
+                                <CardDescription>Manage environment variables and settings for your services.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {services?.map(service => (
+                                    <ServiceSettings key={service._id} service={service} />
+                                ))}
+                                {(!services || services.length === 0) && (
+                                    <div className="text-muted-foreground text-sm">No services found. Create a service to configure settings.</div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 </TabsContent>
             </Tabs>
+        </div>
+    );
+}
+
+function ServiceSettings({ service }: { service: any }) {
+    const [envVars, setEnvVars] = useState<{ key: string, value: string }[]>(service.env || []);
+    const queryClient = useQueryClient();
+
+    const updateServiceMutation = useMutation({
+        mutationFn: async (data: any) => {
+            return await axios.put(`/services/${service._id}`, data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['services'] });
+            toast.success('Service configuration updated');
+        },
+        onError: (error: any) => {
+            toast.error(error.response?.data?.message || 'Failed to update service');
+        }
+    });
+
+    const handleSave = () => {
+        updateServiceMutation.mutate({ env: envVars });
+    };
+
+    const addEnvVar = () => {
+        setEnvVars([...envVars, { key: '', value: '' }]);
+    };
+
+    const removeEnvVar = (index: number) => {
+        const newEnv = [...envVars];
+        newEnv.splice(index, 1);
+        setEnvVars(newEnv);
+    };
+
+    const updateEnvVar = (index: number, field: 'key' | 'value', value: string) => {
+        const newEnv = [...envVars];
+        newEnv[index][field] = value;
+        setEnvVars(newEnv);
+    };
+
+    return (
+        <div className="border rounded-lg p-4 space-y-4">
+            <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                    {service.type === 'web' ? <RefreshCw className="h-4 w-4" /> : <Terminal className="h-4 w-4" />}
+                    <h4 className="font-medium text-sm">{service.name}</h4>
+                    <Badge variant="outline" className="text-xs">{service.type}</Badge>
+                </div>
+                <Button size="sm" onClick={handleSave} disabled={updateServiceMutation.isPending}>
+                    {updateServiceMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </Button>
+            </div>
+
+            <div className="space-y-3">
+                <Label className="text-xs font-medium">Environment Variables</Label>
+                {envVars.map((env, index) => (
+                    <div key={index} className="flex gap-2">
+                        <Input
+                            placeholder="KEY"
+                            value={env.key}
+                            onChange={(e) => updateEnvVar(index, 'key', e.target.value)}
+                            className="flex-1 font-mono text-sm"
+                        />
+                        <Input
+                            placeholder="VALUE"
+                            value={env.value}
+                            onChange={(e) => updateEnvVar(index, 'value', e.target.value)}
+                            className="flex-1 font-mono text-sm"
+                            type="password"
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => removeEnvVar(index)}>
+                            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                        </Button>
+                    </div>
+                ))}
+                <Button variant="outline" size="sm" onClick={addEnvVar} className="w-full border-dashed">
+                    <Plus className="h-3 w-3 mr-2" /> Add Environment Variable
+                </Button>
+            </div>
         </div>
     );
 }
