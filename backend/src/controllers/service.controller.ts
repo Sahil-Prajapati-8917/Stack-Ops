@@ -54,3 +54,37 @@ export const deployService = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ message: (error as Error).message });
     }
 };
+
+export const updateService = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const service = await Service.findOneAndUpdate(
+            { _id: id },
+            { $set: req.body },
+            { new: true, runValidators: true }
+        );
+
+        if (!service) {
+            return res.status(404).json({ message: 'Service not found' });
+        }
+
+        res.json(service);
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
+
+export const deleteService = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const service = await Service.findOneAndDelete({ _id: id });
+
+        if (!service) {
+            return res.status(404).json({ message: 'Service not found' });
+        }
+
+        res.json({ message: 'Service deleted' });
+    } catch (error) {
+        res.status(500).json({ message: (error as Error).message });
+    }
+};
